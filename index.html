@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evaluación — Elementos de Derecho Comercial</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --azul: #003366;
+    --azul-med: #1a4d8f;
+    --azul-light: #e8eef7;
+    --azul-border: #b8cce4;
+    --gris-text: #4a4a4a;
+    --gris-light: #f5f6f8;
+    --accent: #c8a951;
+    --danger: #c0392b;
+    --danger-light: #fdf0ef;
+    --warning: #e67e22;
+    --warning-light: #fef5ec;
+    --success: #27ae60;
+    --radius: 6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--gris-light); color: var(--gris-text); min-height: 100vh; }
+
+  header { background: var(--azul); color: white; border-bottom: 3px solid var(--accent); }
+  .header-inner { max-width: 760px; margin: 0 auto; padding: 24px 24px 20px; display: flex; align-items: center; gap: 18px; }
+  .escudo { width: 52px; height: 52px; flex-shrink: 0; }
+  .header-texts h1 { font-family: 'EB Garamond', serif; font-size: 20px; font-weight: 500; letter-spacing: 0.01em; line-height: 1.2; }
+  .header-texts p { font-size: 12px; opacity: 0.75; margin-top: 3px; font-weight: 300; letter-spacing: 0.04em; text-transform: uppercase; }
+
+  main { max-width: 760px; margin: 32px auto; padding: 0 16px 60px; }
+
+  /* ID */
+  #screen-id { background: white; border: 0.5px solid var(--azul-border); border-radius: var(--radius); padding: 36px 40px; }
+  #screen-id h2 { font-family: 'EB Garamond', serif; font-size: 22px; font-weight: 500; color: var(--azul); margin-bottom: 6px; }
+  .subtitle { font-size: 13px; color: #888; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 0.5px solid #e5e5e5; }
+  .instrucciones { background: var(--azul-light); border-left: 3px solid var(--azul-med); border-radius: 0 var(--radius) var(--radius) 0; padding: 14px 16px; margin-bottom: 28px; font-size: 13px; line-height: 1.6; color: var(--azul); }
+  .instrucciones strong { font-weight: 500; }
+  .field-group { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 12px; font-weight: 500; color: var(--azul); letter-spacing: 0.05em; text-transform: uppercase; }
+  .field input { padding: 10px 12px; border: 1px solid var(--azul-border); border-radius: var(--radius); font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--gris-text); transition: border-color 0.15s; outline: none; }
+  .field input:focus { border-color: var(--azul-med); }
+  .field input.error { border-color: var(--danger); }
+  .error-msg { font-size: 11px; color: var(--danger); margin-top: 2px; display: none; }
+  .btn-primary { background: var(--azul); color: white; border: none; padding: 13px 32px; font-size: 14px; font-family: 'DM Sans', sans-serif; font-weight: 500; border-radius: var(--radius); cursor: pointer; letter-spacing: 0.02em; transition: background 0.15s; }
+  .btn-primary:hover { background: var(--azul-med); }
+
+  /* EXAMEN */
+  #screen-exam { display: none; }
+  .exam-topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .alumno-info { font-size: 13px; color: var(--azul); }
+  .alumno-info strong { font-weight: 500; }
+
+  /* TIMER */
+  .timer-wrap { display: flex; align-items: center; gap: 8px; background: var(--azul-light); border: 1px solid var(--azul-border); border-radius: 20px; padding: 5px 14px; transition: background 0.4s, border-color 0.4s; }
+  .timer-wrap.warning { background: var(--warning-light); border-color: var(--warning); }
+  .timer-wrap.danger  { background: var(--danger-light); border-color: var(--danger); animation: pulsar 1s infinite; }
+  @keyframes pulsar { 0%,100%{opacity:1} 50%{opacity:0.65} }
+  .timer-icon { font-size: 13px; }
+  .timer-display { font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--azul); transition: color 0.4s; min-width: 44px; text-align: right; font-family: 'DM Sans', sans-serif; }
+  .timer-wrap.warning .timer-display { color: var(--warning); }
+  .timer-wrap.danger  .timer-display { color: var(--danger); }
+  .timer-label { font-size: 11px; color: #999; }
+
+  /* BARRAS */
+  .bars-row { display: flex; flex-direction: column; gap: 5px; margin-bottom: 18px; }
+  .bar-label { font-size: 11px; color: #bbb; display: flex; justify-content: space-between; }
+  .progress-bar { height: 3px; background: #e0e0e0; border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
+  .fill-preguntas { background: var(--azul-med); }
+  .fill-tiempo { background: var(--success); transition: width 1s linear, background 0.5s; }
+  .fill-tiempo.warning { background: var(--warning); }
+  .fill-tiempo.danger  { background: var(--danger); }
+
+  /* DOTS */
+  .dots-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+  .dot { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--azul-border); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s; color: #aaa; background: white; }
+  .dot.respondida { background: var(--azul-light); border-color: var(--azul-med); color: var(--azul-med); }
+  .dot.activa { background: var(--azul); border-color: var(--azul); color: white; }
+
+  /* PREGUNTA */
+  .pregunta-card { background: white; border: 0.5px solid var(--azul-border); border-radius: var(--radius); padding: 28px 32px; margin-bottom: 16px; animation: fadeIn 0.22s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
+  .pregunta-numero { font-size: 11px; font-weight: 500; color: var(--azul-med); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+  .tipo-badge { background: var(--azul-light); color: var(--azul); padding: 2px 8px; border-radius: 10px; font-size: 10px; margin-left: 8px; }
+  .pregunta-texto { font-family: 'EB Garamond', serif; font-size: 17px; line-height: 1.55; color: #1a1a1a; margin-bottom: 20px; }
+  .opciones { display: flex; flex-direction: column; gap: 9px; }
+  .opcion-label { display: flex; align-items: flex-start; gap: 11px; padding: 11px 14px; border: 1px solid #dde3ec; border-radius: var(--radius); cursor: pointer; transition: border-color 0.12s, background 0.12s; font-size: 14px; line-height: 1.45; color: var(--gris-text); user-select: none; }
+  .opcion-label:hover { border-color: var(--azul-med); background: var(--azul-light); }
+  .opcion-label input { margin-top: 2px; flex-shrink: 0; accent-color: var(--azul); }
+  .opcion-label.selected { border-color: var(--azul-med); background: var(--azul-light); }
+  .hint-multiple { font-size: 11px; color: #999; margin-top: 8px; font-style: italic; }
+
+  /* NAV */
+  .nav-botones { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+  .btn-nav { background: transparent; border: 1px solid var(--azul-border); color: var(--azul); padding: 10px 22px; font-size: 13px; font-family: 'DM Sans', sans-serif; border-radius: var(--radius); cursor: pointer; transition: all 0.12s; }
+  .btn-nav:hover { background: var(--azul-light); }
+  .btn-nav:disabled { opacity: 0.35; cursor: not-allowed; }
+  .paso-indicator { font-size: 13px; color: #999; }
+
+  /* MODAL */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 100; align-items: center; justify-content: center; }
+  .modal-overlay.visible { display: flex; }
+  .modal-box { background: white; border-radius: 10px; padding: 36px 40px; max-width: 420px; width: 90%; text-align: center; animation: fadeIn 0.25s ease; }
+  .modal-icon { font-size: 40px; margin-bottom: 14px; }
+  .modal-box h3 { font-family: 'EB Garamond', serif; font-size: 22px; color: var(--azul); margin-bottom: 10px; }
+  .modal-box p { font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 22px; }
+  .modal-box .btn-primary { width: 100%; }
+
+  /* CONFIRMAR */
+  #screen-confirm { display: none; }
+  .confirm-box { background: white; border: 0.5px solid var(--azul-border); border-radius: var(--radius); padding: 36px 40px; text-align: center; }
+  .confirm-box h2 { font-family: 'EB Garamond', serif; font-size: 22px; color: var(--azul); margin-bottom: 10px; }
+  .confirm-box > p { font-size: 14px; color: #666; line-height: 1.6; max-width: 420px; margin: 0 auto 24px; }
+  .resumen { background: var(--azul-light); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 24px; font-size: 13px; color: var(--azul); text-align: left; }
+  .resumen div { margin-bottom: 4px; }
+  .resumen strong { font-weight: 500; }
+  .btn-enviar { background: var(--azul); color: white; border: none; padding: 13px 36px; font-size: 14px; font-family: 'DM Sans', sans-serif; font-weight: 500; border-radius: var(--radius); cursor: pointer; transition: background 0.15s; margin-right: 12px; }
+  .btn-enviar:hover { background: var(--azul-med); }
+  .btn-enviar:disabled { background: #aaa; cursor: not-allowed; }
+  .btn-volver { background: transparent; border: 1px solid var(--azul-border); color: var(--azul); padding: 13px 24px; font-size: 14px; font-family: 'DM Sans', sans-serif; border-radius: var(--radius); cursor: pointer; transition: all 0.12s; }
+  .btn-volver:hover { background: var(--azul-light); }
+
+  /* ENVIADO */
+  #screen-sent { display: none; }
+  .sent-box { background: white; border: 0.5px solid var(--azul-border); border-radius: var(--radius); padding: 48px 40px; text-align: center; }
+  .check-icon { width: 56px; height: 56px; background: #eaf6ef; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 24px; color: var(--success); }
+  .sent-box h2 { font-family: 'EB Garamond', serif; font-size: 24px; color: var(--azul); margin-bottom: 10px; }
+  .sent-box p { font-size: 14px; color: #666; line-height: 1.6; max-width: 400px; margin: 0 auto; }
+  .sent-nota { margin: 24px auto 0; padding: 14px 18px; background: var(--azul-light); border-radius: var(--radius); font-size: 13px; color: var(--azul); max-width: 420px; }
+
+  /* ANTI-COPIA: bloquear selección de texto en preguntas y opciones */
+  .pregunta-card, .pregunta-texto, .opcion-label, .opciones {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* TOAST advertencia */
+  .toast {
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: #1a1a2e; color: white; padding: 12px 22px; border-radius: 8px;
+    font-size: 13px; font-family: 'DM Sans', sans-serif;
+    border-left: 3px solid var(--warning);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    opacity: 0; z-index: 200; white-space: nowrap;
+  }
+  .toast.visible { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+  @media(max-width:540px){
+    .field-group{grid-template-columns:1fr}
+    #screen-id,.confirm-box,.sent-box{padding:24px 20px}
+    .pregunta-card{padding:20px 18px}
+    .header-inner{padding:18px 16px}
+    .exam-topbar{flex-direction:column;align-items:flex-start;gap:10px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <svg class="escudo" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="26" cy="26" r="25" fill="white" fill-opacity="0.12" stroke="white" stroke-width="1"/>
+      <circle cx="26" cy="26" r="20" fill="white" fill-opacity="0.08" stroke="#c8a951" stroke-width="1"/>
+      <text x="26" y="21" text-anchor="middle" fill="white" font-size="7" font-family="EB Garamond,serif" font-weight="600">UBA</text>
+      <text x="26" y="30" text-anchor="middle" fill="#c8a951" font-size="5.5" font-family="DM Sans,sans-serif">DERECHO</text>
+      <line x1="14" y1="33" x2="38" y2="33" stroke="#c8a951" stroke-width="0.8"/>
+      <text x="26" y="40" text-anchor="middle" fill="white" fill-opacity="0.7" font-size="4.5" font-family="DM Sans,sans-serif">CÁTEDRA</text>
+    </svg>
+    <div class="header-texts">
+      <h1>Elementos de Derecho Comercial</h1>
+      <p>Facultad de Derecho · Universidad de Buenos Aires · Cátedra Favier Dubois</p>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- PANTALLA 1: IDENTIFICACIÓN -->
+  <div id="screen-id">
+    <h2>Evaluación parcial</h2>
+    <p class="subtitle">Completá tus datos para comenzar</p>
+    <div class="instrucciones">
+      <strong>Instrucciones:</strong> El examen consta de <strong>12 preguntas</strong> seleccionadas aleatoriamente del banco de la materia.
+      Puede haber preguntas de opción única y preguntas con <strong>más de una respuesta correcta</strong> (se indicará en cada caso).
+      Temas: Marcas · Patentes · Modelos y Diseños Industriales · Contabilidad para Abogados.
+      Tiempo disponible: <strong>9 minutos</strong>. Al vencerse el tiempo, las respuestas marcadas hasta ese momento serán enviadas automáticamente.
+    </div>
+    <div class="field-group">
+      <div class="field">
+        <label>Apellido</label>
+        <input type="text" id="inp-apellido" placeholder="Ej: García" autocomplete="family-name">
+        <span class="error-msg" id="err-apellido">Ingresá tu apellido</span>
+      </div>
+      <div class="field">
+        <label>Nombre</label>
+        <input type="text" id="inp-nombre" placeholder="Ej: María" autocomplete="given-name">
+        <span class="error-msg" id="err-nombre">Ingresá tu nombre</span>
+      </div>
+      <div class="field">
+        <label>DNI</label>
+        <input type="text" id="inp-dni" placeholder="Sin puntos" maxlength="9" inputmode="numeric">
+        <span class="error-msg" id="err-dni">Ingresá un DNI válido</span>
+      </div>
+      <div class="field">
+        <label>Comisión / Turno</label>
+        <input type="text" id="inp-comision" placeholder="Ej: Mañana — Lunes">
+      </div>
+    </div>
+    <button class="btn-primary" onclick="iniciarExamen()">Comenzar evaluación →</button>
+  </div>
+
+  <!-- PANTALLA 2: EXAMEN -->
+  <div id="screen-exam">
+    <div class="exam-topbar">
+      <div class="alumno-info"><strong id="label-nombre">—</strong> · DNI <strong id="label-dni">—</strong></div>
+      <div class="timer-wrap" id="timer-wrap">
+        <span class="timer-icon">⏱</span>
+        <span class="timer-display" id="timer-display">10:00</span>
+        <span class="timer-label">restantes</span>
+      </div>
+    </div>
+
+    <div class="bars-row">
+      <div class="bar-label"><span>Preguntas respondidas</span><span id="lbl-respondidas">0 de 10</span></div>
+      <div class="progress-bar"><div class="progress-fill fill-preguntas" id="fill-preguntas" style="width:0%"></div></div>
+      <div class="bar-label" style="margin-top:3px"><span>Tiempo restante</span><span id="lbl-tiempo-pct">100%</span></div>
+      <div class="progress-bar"><div class="progress-fill fill-tiempo" id="fill-tiempo" style="width:100%"></div></div>
+    </div>
+
+    <div class="dots-row" id="dots-container"></div>
+    <div id="preguntas-container"></div>
+
+    <div class="nav-botones">
+      <button class="btn-nav" id="btn-anterior" onclick="navegarPregunta(-1)" disabled>← Anterior</button>
+      <span class="paso-indicator" id="paso-label">1 / 10</span>
+      <button class="btn-nav" id="btn-siguiente">Siguiente →</button>
+    </div>
+  </div>
+
+  <!-- PANTALLA 3: CONFIRMAR -->
+  <div id="screen-confirm">
+    <div class="confirm-box">
+      <h2>Revisar y enviar</h2>
+      <p>Verificá que hayas respondido todas las preguntas. Una vez enviado no podrás modificar tus respuestas.</p>
+      <div class="resumen" id="resumen-envio"></div>
+      <div>
+        <button class="btn-enviar" id="btn-enviar-final" onclick="enviarExamen(false)">Enviar evaluación</button>
+        <button class="btn-volver" id="btn-volver-exam" onclick="volverAlExamen()">Volver a revisar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANTALLA 4: ENVIADO -->
+  <div id="screen-sent">
+    <div class="sent-box">
+      <div class="check-icon">✓</div>
+      <h2 id="sent-titulo">Evaluación enviada</h2>
+      <p id="sent-mensaje">Tus respuestas fueron recibidas correctamente. La cátedra revisará tu examen y te comunicará el resultado.</p>
+      <div class="sent-nota">Número de referencia:<br><strong id="ref-numero" style="font-size:15px;display:block;margin-top:6px">—</strong></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- MODAL TIEMPO AGOTADO -->
+<div class="modal-overlay" id="modal-tiempo">
+  <div class="modal-box">
+    <div class="modal-icon">⏰</div>
+    <h3>Tiempo agotado</h3>
+    <p>El tiempo disponible se terminó. Tus respuestas marcadas hasta este momento serán enviadas automáticamente.</p>
+    <button class="btn-primary" onclick="cerrarModalYEnviar()">Confirmar y enviar mis respuestas</button>
+  </div>
+</div>
+
+
+<!-- WEB3FORMS: reemplazá YOUR_ACCESS_KEY con la clave que te manda web3forms.com -->
+<form id="formspree-form" action="https://api.web3forms.com/submit" method="POST" style="display:none">
+  <input type="hidden" name="access_key" value="3f337b1c-f2bc-46b7-a343-7925ddfe36f8">
+  <input type="hidden" name="subject" value="Examen Elementos de Derecho Comercial — Propiedad Industrial y Contabilidad">
+  <input type="hidden" name="apellido"   id="fs-apellido">
+  <input type="hidden" name="nombre"     id="fs-nombre">
+  <input type="hidden" name="dni"        id="fs-dni">
+  <input type="hidden" name="comision"   id="fs-comision">
+  <input type="hidden" name="fecha_hora" id="fs-fecha">
+  <input type="hidden" name="referencia" id="fs-ref">
+  <input type="hidden" name="modo_envio" id="fs-modo">
+  <input type="hidden" name="nota_sobre_100" id="fs-nota">
+  <input type="hidden" name="respuestas" id="fs-respuestas">
+</form>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── ANTI-COPIA ───────────────────────────────────────────────
+let toastTimer = null;
+function mostrarToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('visible');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('visible'), 2200);
+}
+
+// Bloquear clic derecho
+document.addEventListener('contextmenu', e => {
+  e.preventDefault();
+  mostrarToast('⚠ Menú contextual deshabilitado durante el examen');
+});
+
+// Bloquear atajos de teclado
+document.addEventListener('keydown', e => {
+  const bloqueados = [
+    e.ctrlKey && e.key === 'c',   // Ctrl+C
+    e.ctrlKey && e.key === 'a',   // Ctrl+A
+    e.ctrlKey && e.key === 'u',   // Ctrl+U (ver fuente)
+    e.ctrlKey && e.key === 's',   // Ctrl+S (guardar)
+    e.ctrlKey && e.key === 'p',   // Ctrl+P (imprimir)
+    e.key === 'F12',              // DevTools
+    e.ctrlKey && e.shiftKey && e.key === 'I', // DevTools alt
+    e.ctrlKey && e.shiftKey && e.key === 'J', // Consola
+  ];
+  if (bloqueados.some(Boolean)) {
+    e.preventDefault();
+    if (e.key === 'c' || e.key === 'a') mostrarToast('⚠ Copiado deshabilitado durante el examen');
+  }
+});
+</script>
+
+<script>
+// ─── CONFIGURACIÓN ────────────────────────────────────────────
+const TIEMPO_SEG = 12 * 45;   // ← cambiá este valor para ajustar el tiempo
+const TOTAL      = 12;
+
+// ─── BANCO DE PREGUNTAS ───────────────────────────────────────
+const BANCO = [
+  { id:1, tipo:"unica", texto:"Según la Ley 22.362, el sistema adoptado en Argentina para la adquisición del derecho exclusivo sobre una marca es:",
+    opciones:["Sistema declarativo: el derecho nace con el primer uso público de la marca.", "Sistema atributivo: el derecho nace con el registro ante la Dirección Nacional de Marcas.", "Sistema mixto: el uso prolongado puede suplir la falta de registro en casos excepcionales.", "Sistema declarativo-constitutivo: se requiere uso previo y registro simultáneo."],
+    correctas:[1], just:"Art. 4 Ley 22.362: \"La propiedad de una marca y la exclusividad de uso se obtienen con su registro.\" Breuer Moreno lo sintetizó: en el sistema atributivo no existe derecho de ninguna especie sobre la marca si no hay registro." },
+  { id:2, tipo:"unica", texto:"¿Por cuántos años dura el registro de una marca en Argentina y cómo puede mantenerse vigente?",
+    opciones:["Cinco años; renovable por períodos de cinco años pagando la tasa oficial.", "Diez años; la renovación es automática si no hubo oposición durante ese plazo.", "Diez años; renovable indefinidamente por períodos iguales si la marca fue utilizada dentro de los cinco años previos a cada vencimiento.", "Veinte años, sin posibilidad de renovación posterior."],
+    correctas:[2], just:"Arts. 5 y 26 Ley 22.362: el registro dura 10 años y puede renovarse indefinidamente si la marca fue utilizada en los 5 años previos a cada vencimiento." },
+  { id:3, tipo:"unica", texto:"Una marca evocativa es considerada por los tribunales argentinos como una marca \"débil\". ¿Cuál es la principal consecuencia jurídica de esa debilidad?",
+    opciones:["Su titular debe tolerar la coexistencia de otras marcas que evoquen las mismas propiedades o características, y los jueces aplican un criterio más benévolo en el cotejo marcario.", "La marca pierde automáticamente su registro a los dos años de uso intensivo.", "Solo puede usarse en combinación con otras marcas más fuertes para no inducir a error.", "El INPI puede rechazar su renovación sin necesidad de sentencia judicial."],
+    correctas:[0], just:"La debilidad de las marcas evocativas radica en que cualquier persona tiene derecho a evocar en sus marcas las propiedades del producto. Esto obliga al titular a aceptar la coexistencia y el juez aplica criterio más benévolo al cotejar." },
+  { id:4, tipo:"unica", texto:"Respecto a las patentes de invención en Argentina (Ley 24.481), ¿cuál es el plazo de protección y desde cuándo se computa?",
+    opciones:["10 años desde la concesión efectiva de la patente.", "15 años desde la presentación de la solicitud, renovables por 5 años adicionales.", "20 años desde la concesión, renovables por iguales períodos previo pago de tasas.", "20 años improrrogables desde la fecha de presentación de la solicitud."],
+    correctas:[3], just:"Art. 35 Ley 24.481: la patente de invención tiene una vigencia de 20 años improrrogables, contados desde la fecha de presentación de la solicitud. No es renovable." },
+  { id:5, tipo:"unica", texto:"Para que una invención sea patentable en Argentina, debe reunir tres requisitos esenciales. ¿Cuáles son?",
+    opciones:["Originalidad, creatividad y novedad mundial.", "Novedad, actividad inventiva y aplicación industrial.", "Novedad, utilidad social y registro previo en el INPI.", "Originalidad, utilidad económica y publicación científica previa."],
+    correctas:[1], just:"Art. 4 Ley 24.481: los tres requisitos son: (1) novedad —no pertenece al estado de la técnica—; (2) actividad inventiva —no es evidente para un experto—; y (3) aplicación industrial —puede fabricarse o utilizarse en la industria—." },
+  { id:6, tipo:"unica", texto:"¿Cuál es la diferencia fundamental entre un modelo de utilidad y una patente de invención?",
+    opciones:["El modelo de utilidad protege creaciones ornamentales; la patente protege creaciones funcionales.", "El modelo de utilidad no requiere ningún requisito de novedad; la patente sí.", "El modelo de utilidad protege mejoras de forma, configuración o estructura de objetos ya conocidos que les otorguen mayor utilidad; su duración es de 10 años, frente a los 20 de la patente.", "El modelo de utilidad tiene protección internacional automática; la patente requiere trámite PCT."],
+    correctas:[2], just:"Arts. 53–57 Ley 24.481: el modelo de utilidad protege mejoras funcionales sobre objetos conocidos y tiene vigencia de 10 años improrrogables desde la solicitud. No requiere el nivel de actividad inventiva exigido para una patente." },
+  { id:7, tipo:"unica", texto:"¿Qué protegen los modelos y diseños industriales en Argentina (Decreto-Ley 6673/63) y cuál es su objeto de tutela específico?",
+    opciones:["La forma ornamental, estética o decorativa de un producto industrial, siempre que sea nueva y susceptible de aplicación industrial.", "La funcionalidad técnica de productos industriales, distinguiéndolos de otros por su rendimiento.", "El nombre comercial de productos fabricados en serie, con exclusividad territorial.", "Los procesos de fabricación de cualquier objeto tangible, con independencia de su forma."],
+    correctas:[0], just:"Los diseños industriales protegen el aspecto ornamental o estético de un producto (líneas, colores, formas, texturas). El diseño debe ser nuevo y apto para reproducción industrial. El plazo de protección es de 5 años renovables hasta un máximo de 15." },
+  { id:8, tipo:"unica", texto:"En materia de patentes, ¿cuándo procede una licencia obligatoria y quién puede solicitarla?",
+    opciones:["Cualquier persona puede solicitar licencia obligatoria desde el primer día de vigencia de la patente.", "Procede automáticamente cuando la patente no es explotada durante 2 años consecutivos.", "Solo puede declararla el Poder Ejecutivo en casos de emergencia nacional, sin intervención judicial.", "Puede solicitarla cualquier interesado ante el INPI cuando el titular no exploite la invención o se niegue a conceder licencias voluntarias en condiciones razonables, transcurridos 3 años desde la concesión o 4 desde la solicitud."],
+    correctas:[3], just:"Art. 43 Ley 24.481: la licencia obligatoria procede a pedido de parte si, transcurridos 3 años desde la concesión (o 4 desde la solicitud), el titular no explotó la invención en el país ni otorgó licencias voluntarias en términos razonables." },
+  { id:9, tipo:"unica", texto:"En los estados contables, ¿qué muestra el Estado de Situación Patrimonial (ESP)?",
+    opciones:["Los ingresos y egresos de caja del período, clasificados por actividades operativas, de inversión y financiamiento.", "La composición del activo, pasivo y patrimonio neto de la empresa en un momento determinado (foto).", "Las ganancias y pérdidas generadas durante el ejercicio económico.", "Los cambios en el capital social y las reservas a lo largo del ejercicio."],
+    correctas:[1], just:"El ESP (Balance) es la \"foto\" de la empresa: muestra el activo (lo que posee), el pasivo (lo que debe a terceros) y el patrimonio neto (lo que pertenece a los socios), con la ecuación fundamental: Activo = Pasivo + PN ." },
+  { id:10, tipo:"unica", texto:"La Prueba Ácida se calcula como:",
+    opciones:["Activo Total / Pasivo Total", "Activo Corriente / Pasivo Corriente", "(Activo Corriente − Bienes de Cambio) / Pasivo Corriente", "Patrimonio Neto / Pasivo Total"],
+    correctas:[2], just:"La prueba ácida excluye los Bienes de Cambio (mercaderías) por ser el activo menos líquido. Evalúa la capacidad de pago inmediata. Resultado ≥ 1 indica situación tranquilizadora." },
+  { id:11, tipo:"multiple", texto:"Según el art. 2 de la Ley 22.362, ¿cuáles de los siguientes NO se consideran marcas y no son registrables? (Seleccione todas las correctas)",
+    opciones:["El color natural o intrínseco de los productos o un solo color aplicado sobre los mismos.", "Una palabra de fantasía sin significado conceptual específico.", "Los nombres y signos que constituyen la designación necesaria o habitual del producto a distinguir.", "Las frases publicitarias originales creadas expresamente para un producto."],
+    correctas:[0, 2], just:"El art. 2 excluye: a) los signos genéricos/necesarios del producto, b) signos de uso general previo, c) la forma del producto y d) el color natural o un solo color sobre el producto. Las palabras de fantasía (b) y frases publicitarias originales (d) SÍ son registrables." },
+  { id:12, tipo:"multiple", texto:"¿Cuáles de las siguientes causas producen la extinción del derecho sobre una marca registrada (art. 23 Ley 22.362)?",
+    opciones:["El titular no usa la marca en el comercio exterior durante 3 años consecutivos.", "Renuncia del titular, comunicada por escrito a la Dirección Nacional de Marcas.", "Vencimiento del plazo de diez años sin que se renueve el registro.", "Declaración judicial de nulidad o de caducidad del registro."],
+    correctas:[1, 2, 3], just:"El art. 23 enumera tres causas de extinción: renuncia escrita del titular; vencimiento de los 10 años sin renovación; declaración judicial de nulidad o caducidad. La falta de uso en el comercio exterior (a) no es causal directa de extinción del art. 23." },
+  { id:13, tipo:"multiple", texto:"Respecto al trámite de registro de marcas, ¿cuáles de las siguientes afirmaciones son correctas?",
+    opciones:["Cualquier persona puede deducir oposición a su registro dentro de los treinta días corridos de publicada la marca.", "La solicitud configura un derecho de prelación: quien primero la presenta tiene mejor derecho.", "La oposición presentada obliga a la autoridad administrativa a denegar el registro de la marca en cuestión.", "El solicitante tiene un plazo de un año desde los sesenta días de notificada la oposición para negociar o iniciar acción judicial."],
+    correctas:[0, 1, 3], just:"La oposición (c) NO obliga a la autoridad a denegar el registro; solo es un \"llamado de atención\". La autoridad evalúa de forma independiente. Las opciones (a), (b) y (d) sí son correctas según la Ley 22.362." },
+  { id:14, tipo:"multiple", texto:"¿Cuáles son los requisitos de patentabilidad previstos en la Ley 24.481 para una invención?",
+    opciones:["Novedad: la invención no debe formar parte del estado de la técnica.", "Registro previo en cualquier país signatario del PCT antes de la solicitud argentina.", "Actividad inventiva: no debe resultar obvia para un técnico experto en la materia.", "Aplicación industrial: la invención debe poder fabricarse o utilizarse en cualquier tipo de industria."],
+    correctas:[0, 2, 3], just:"Los tres requisitos son novedad (a), actividad inventiva (c) y aplicación industrial (d). El registro previo en otro país (b) no es un requisito; al contrario, puede destruir la novedad si se publicó." },
+  { id:15, tipo:"multiple", texto:"En cuanto a las licencias obligatorias de patentes en Argentina, ¿cuáles de las siguientes son causales que la habilitan?",
+    opciones:["Que el titular sea una persona jurídica de capital extranjero mayoritario.", "Falta de explotación de la patente en el país transcurridos 3 años desde la concesión o 4 desde la solicitud.", "Razones de salud pública, seguridad nacional o emergencia declarada, incluso antes de cumplirse los plazos ordinarios.", "Que el solicitante de la licencia haya presentado un proyecto de inversión superior a USD 1.000.000."],
+    correctas:[1, 2], just:"La Ley 24.481 habilita licencias obligatorias por: (b) falta de explotación tras los plazos legales; y (c) razones de salud pública, seguridad nacional o emergencia (art. 45). La nacionalidad del titular (a) y el monto de la inversión (d) no son causales." },
+  { id:16, tipo:"multiple", texto:"¿Cuáles de las siguientes afirmaciones sobre modelos y diseños industriales son correctas?",
+    opciones:["Protegen el aspecto ornamental, estético o decorativo de un producto, no su funcionalidad técnica.", "El plazo de protección es de 5 años, renovable hasta un máximo de 15 años.", "No requieren novedad para su registro; basta con que no estén registrados en Argentina.", "Se rigen por el Decreto-Ley 6673/63 y su registro es de carácter constitutivo del derecho."],
+    correctas:[0, 1, 3], just:"Los diseños industriales sí requieren novedad (c es falsa). Protegen la forma ornamental (a), duran 5 años renovables hasta 15 (b) y el registro es constitutivo (d), al igual que en marcas." },
+  { id:17, tipo:"multiple", texto:"Según el CCyCN (arts. 322 y 327), ¿cuáles de los siguientes son libros contables obligatorios para todo sujeto obligado a llevar contabilidad?",
+    opciones:["Libro Diario: se registran cronológicamente todas las operaciones del ente.", "Libro de Inventarios y Balances: se vuelcan el detalle de cada rubro del activo y pasivo y los estados contables de cierre.", "Libro de Actas de Asamblea: obligatorio para toda persona humana o jurídica que lleve contabilidad.", "Libro Mayor: agrupa las cuentas en forma individual y permite ver el saldo de cada una; es un registro obligatorio según el CCyCN."],
+    correctas:[0, 1], just:"Arts. 322 y 327 CCyCN: los libros obligatorios son el Diario (a) y el de Inventarios y Balances (b). El Libro Mayor (d) es un registro auxiliar esencial en la práctica pero no figura como obligatorio autónomo en el art. 322; el CCyCN admite su sustitución por medios digitales previa autorización. El Libro de Actas de Asamblea (c) es obligatorio para las SA por la LGSM, no un libro contable impuesto a todo obligado por el CCyCN. Correctas: a y b." },
+  { id:18, tipo:"multiple", texto:"En contabilidad, ¿cuáles de las siguientes afirmaciones sobre los estados contables son correctas?",
+    opciones:["El Estado de Flujo de Efectivo muestra las ganancias y pérdidas del ejercicio.", "El Estado de Resultados refleja los ingresos y gastos del período y determina la ganancia o pérdida neta.", "Un informe de auditoría adverso implica que los estados contables no presentan razonablemente la situación de la empresa.", "Las notas a los estados contables incluyen información sobre contingencias y litigios en curso."],
+    correctas:[1, 2, 3], just:"El Estado de Flujo de Efectivo (a) muestra movimientos de caja (operación, inversión, financiamiento), no ganancias/pérdidas. El ER (b), la auditoría adversa (c) y las notas (d) son correctas conforme RT 37/FACPCE." },
+  { id:19, tipo:"multiple", texto:"Respecto al valor probatorio de los libros contables (art. 330 CCyCN), ¿cuáles de las siguientes afirmaciones son correctas?",
+    opciones:["Los registros contables prueban en contra de quien los lleva, aunque no estén en forma, sin admitirse prueba en contrario.", "El adversario puede aceptar los asientos que le favorecen y desechar los que le perjudican, tomando solo la parte útil.", "Si ambas partes litigan y presentan registros contradictorios llevados con todas las formalidades, el juez debe prescindir de ese medio de prueba y valorar las demás probanzas.", "La prueba que resulta de la contabilidad es indivisible: quien adopta ese medio de prueba debe estarse a las resultas combinadas de todos los registros relativos al punto cuestionado."],
+    correctas:[0, 2, 3], just:"Art. 330 CCyCN: (a) los registros prueban contra quien los lleva sin admitir prueba en contrario; (b) es falsa : no se puede \"tomar solo lo favorable\", la prueba es indivisible (d); (c) si ambas partes tienen registros regulares contradictorios, el juez prescinde de ese medio y recurre a otras pruebas." },
+  { id:20, tipo:"multiple", texto:"Respecto a los registros contables obligatorios y sus formalidades (CCyCN arts. 322–330), ¿cuáles son correctas?",
+    opciones:["Los libros deben llevarse en forma cronológica, actualizada y en idioma y moneda nacional.", "La documentación de respaldo de los asientos debe conservarse por un mínimo de 10 años.", "Está prohibido dejar blancos, interlinear o raspar; los errores deben salvarse con un nuevo asiento.", "Los libros contables pueden suprimir el libro Inventario y Balances si se utilizan medios electrónicos aprobados."],
+    correctas:[0, 1, 2], just:"Las opciones (a), (b) y (c) son correctas según arts. 325 y 324 CCyCN. El libro Inventario y Balances (d) es el único que NO puede ser reemplazado por medios digitales según art. 329 CCyCN; los demás sí pueden serlo previa autorización." },
+];
+
+// ─── ESTADO ───────────────────────────────────────────────────
+let alumno = {}, preguntas = [], respuestas = {};
+let pregActual = 0, timerInterval = null;
+let segsRestantes = TIEMPO_SEG;
+let tiempoAgotado = false, yaEnviado = false;
+
+// ─── UTILS ────────────────────────────────────────────────────
+const shuffle = a => { const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];} return b; };
+const genRef  = () => 'EDC-' + Date.now().toString(36).toUpperCase().slice(-6);
+const fmt     = s => String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+
+function mostrarPantalla(id) {
+  ['screen-id','screen-exam','screen-confirm','screen-sent'].forEach(s => document.getElementById(s).style.display='none');
+  document.getElementById(id).style.display = 'block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ─── TIMER ────────────────────────────────────────────────────
+function iniciarTimer() {
+  segsRestantes = TIEMPO_SEG;
+  tickTimer();
+  timerInterval = setInterval(() => {
+    segsRestantes--;
+    tickTimer();
+    if (segsRestantes <= 0) {
+      clearInterval(timerInterval);
+      tiempoAgotado = true;
+      // Si está en pantalla de confirmación, cerrar botón volver y enviar directo
+      if (document.getElementById('screen-confirm').style.display !== 'none') {
+        document.getElementById('btn-volver-exam').style.display = 'none';
+        enviarExamen(true);
+      } else {
+        document.getElementById('modal-tiempo').classList.add('visible');
+      }
+    }
+  }, 1000);
+}
+
+function tickTimer() {
+  const s = Math.max(0, segsRestantes);
+  const pct = Math.round((s / TIEMPO_SEG) * 100);
+  document.getElementById('timer-display').textContent = fmt(s);
+  document.getElementById('fill-tiempo').style.width = pct + '%';
+  document.getElementById('lbl-tiempo-pct').textContent = pct + '%';
+
+  const wrap = document.getElementById('timer-wrap');
+  const fill = document.getElementById('fill-tiempo');
+  wrap.classList.remove('warning','danger');
+  fill.classList.remove('warning','danger');
+
+  if (s <= 60) {
+    wrap.classList.add('danger'); fill.classList.add('danger');
+  } else if (s <= TIEMPO_SEG * 0.25) {
+    wrap.classList.add('warning'); fill.classList.add('warning');
+  }
+}
+
+function cerrarModalYEnviar() {
+  document.getElementById('modal-tiempo').classList.remove('visible');
+  enviarExamen(true);
+}
+
+// ─── INICIO ───────────────────────────────────────────────────
+function iniciarExamen() {
+  const apellido = document.getElementById('inp-apellido').value.trim();
+  const nombre   = document.getElementById('inp-nombre').value.trim();
+  const dni      = document.getElementById('inp-dni').value.trim();
+  let ok = true;
+  ['apellido','nombre','dni'].forEach(f => {
+    document.getElementById('inp-'+f).classList.remove('error');
+    document.getElementById('err-'+f).style.display='none';
+  });
+  if (!apellido) { document.getElementById('inp-apellido').classList.add('error'); document.getElementById('err-apellido').style.display='block'; ok=false; }
+  if (!nombre)   { document.getElementById('inp-nombre').classList.add('error');   document.getElementById('err-nombre').style.display='block';   ok=false; }
+  if (!dni||!/^\d{6,9}$/.test(dni)) { document.getElementById('inp-dni').classList.add('error'); document.getElementById('err-dni').style.display='block'; ok=false; }
+  if (!ok) return;
+
+  alumno = { apellido, nombre, dni, comision: document.getElementById('inp-comision').value.trim()||'—' };
+  const unicas    = shuffle(BANCO.filter(p => p.tipo === 'unica')).slice(0, 6);
+  const multiples = shuffle(BANCO.filter(p => p.tipo === 'multiple')).slice(0, 6);
+  preguntas = shuffle([...unicas, ...multiples]).map(p => {
+    const idx = shuffle(p.opciones.map((_,i)=>i));
+    return { ...p, opciones: idx.map(i=>p.opciones[i]), correctas: p.correctas.map(c=>idx.indexOf(c)) };
+  });
+  respuestas = {}; pregActual = 0; yaEnviado = false; tiempoAgotado = false;
+
+  document.getElementById('label-nombre').textContent = apellido+', '+nombre;
+  document.getElementById('label-dni').textContent = dni;
+
+  mostrarPantalla('screen-exam');
+  renderDots();
+  renderPregunta(0);
+  iniciarTimer();
+}
+
+// ─── DOTS ─────────────────────────────────────────────────────
+function renderDots() {
+  const c = document.getElementById('dots-container');
+  c.innerHTML = '';
+  for (let i=0;i<TOTAL;i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i===pregActual?' activa':'') + (respuestas[i]?.length>0?' respondida':'');
+    d.textContent = i+1;
+    d.onclick = () => { pregActual=i; renderPregunta(i); };
+    c.appendChild(d);
+  }
+}
+
+function actualizarDots() {
+  document.querySelectorAll('.dot').forEach((d,i) => {
+    d.className = 'dot' + (i===pregActual?' activa':'') + (respuestas[i]?.length>0?' respondida':'');
+  });
+  const resp = Object.values(respuestas).filter(r=>r.length>0).length;
+  document.getElementById('fill-preguntas').style.width = Math.round((resp/TOTAL)*100)+'%';
+  document.getElementById('lbl-respondidas').textContent = resp+' de '+TOTAL;
+}
+
+// ─── RENDER PREGUNTA ──────────────────────────────────────────
+function renderPregunta(idx) {
+  const p = preguntas[idx];
+  const tipo = p.tipo==='unica'?'radio':'checkbox';
+  const badge = p.tipo==='unica'?'Una respuesta correcta':'Puede haber varias correctas';
+  const sel = respuestas[idx]||[];
+
+  document.getElementById('preguntas-container').innerHTML = `
+    <div class="pregunta-card">
+      <div class="pregunta-numero">Pregunta ${idx+1} de ${TOTAL}<span class="tipo-badge">${badge}</span></div>
+      <div class="pregunta-texto">${p.texto}</div>
+      <div class="opciones">
+        ${p.opciones.map((op,i)=>`
+        <label class="opcion-label${sel.includes(i)?' selected':''}">
+          <input type="${tipo}" name="p${idx}" value="${i}" ${sel.includes(i)?'checked':''}
+            onchange="marcar(${idx},${i},'${tipo}',this)"> ${op}
+        </label>`).join('')}
+      </div>
+      ${p.tipo==='multiple'?'<p class="hint-multiple">Seleccioná todas las opciones que consideres correctas.</p>':''}
+    </div>`;
+
+  document.getElementById('paso-label').textContent = `${idx+1} / ${TOTAL}`;
+  document.getElementById('btn-anterior').disabled = idx===0;
+  const btnS = document.getElementById('btn-siguiente');
+  btnS.textContent = idx===TOTAL-1 ? 'Revisar y enviar →' : 'Siguiente →';
+  btnS.onclick = idx===TOTAL-1 ? mostrarConfirmar : ()=>navegarPregunta(1);
+  actualizarDots();
+}
+
+function marcar(pregIdx, opIdx, tipo, el) {
+  if (tipo==='radio') {
+    respuestas[pregIdx]=[opIdx];
+    document.querySelectorAll(`input[name="p${pregIdx}"]`).forEach(i=>i.closest('label').classList.toggle('selected',i.checked));
+  } else {
+    if (!respuestas[pregIdx]) respuestas[pregIdx]=[];
+    if (el.checked) respuestas[pregIdx].push(opIdx);
+    else respuestas[pregIdx]=respuestas[pregIdx].filter(v=>v!==opIdx);
+    el.closest('label').classList.toggle('selected',el.checked);
+  }
+  actualizarDots();
+}
+
+function navegarPregunta(dir) {
+  pregActual = Math.max(0,Math.min(TOTAL-1,pregActual+dir));
+  renderPregunta(pregActual);
+}
+
+// ─── CONFIRMAR ────────────────────────────────────────────────
+function mostrarConfirmar() {
+  if (tiempoAgotado) return;
+  const sin = [];
+  for(let i=0;i<TOTAL;i++) if(!respuestas[i]?.length) sin.push(i+1);
+  const ahora = new Date();
+  const fecha = ahora.toLocaleDateString('es-AR')+' '+ahora.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+  const resp = Object.values(respuestas).filter(r=>r.length>0).length;
+
+  let adv = '';
+  if (sin.length) adv = `<div style="color:var(--danger);font-size:13px;margin-bottom:12px;padding:10px 14px;background:var(--danger-light);border-radius:4px;border-left:3px solid var(--danger)"><strong>Atención:</strong> Sin respuesta en las preguntas: ${sin.join(', ')}.</div>`;
+
+  document.getElementById('resumen-envio').innerHTML = `${adv}
+    <div><strong>Alumno/a:</strong> ${alumno.apellido}, ${alumno.nombre}</div>
+    <div><strong>DNI:</strong> ${alumno.dni}</div>
+    <div><strong>Comisión:</strong> ${alumno.comision}</div>
+    <div><strong>Fecha y hora:</strong> ${fecha}</div>
+    <div><strong>Respondidas:</strong> ${resp} de ${TOTAL}</div>
+    <div><strong>Tiempo restante:</strong> ${fmt(segsRestantes)}</div>`;
+
+  mostrarPantalla('screen-confirm');
+}
+
+function volverAlExamen() {
+  if (tiempoAgotado) return;
+  mostrarPantalla('screen-exam');
+  renderPregunta(pregActual);
+}
+
+// ─── ENVÍO ────────────────────────────────────────────────────
+function enviarExamen(porTiempo) {
+  if (yaEnviado) return;
+  yaEnviado = true;
+  clearInterval(timerInterval);
+
+  const ref  = genRef();
+  const ahora = new Date();
+  const fecha = ahora.toLocaleDateString('es-AR')+' — '+ahora.toLocaleTimeString('es-AR');
+  const modo  = porTiempo ? 'Automático — tiempo agotado' : 'Manual — alumno entregó';
+  // ── CORRECCIÓN Y NOTA ─────────────────────────────────────
+  let puntajeTotal = 0;
+  const detalle = preguntas.map((p,i) => {
+    const sel = respuestas[i] || [];
+    const correctas = p.correctas;
+    const totalOpciones = p.opciones.length;
+
+    let puntajePregunta = 0;
+    if (p.tipo === 'unica') {
+      // Opción única: vale 0.5, todo o nada
+      puntajePregunta = (sel.length === 1 && sel[0] === correctas[0]) ? 0.5 : 0;
+    } else {
+      // Múltiple: vale 1.5, proporcional con descuento por incorrectas
+      const aciertos    = sel.filter(r => correctas.includes(r)).length;
+      const incorrectas = sel.filter(r => !correctas.includes(r)).length;
+      const valorPorCorrecta = 1.5 / correctas.length;
+      const descuento = (incorrectas * valorPorCorrecta);
+      const bruto = (aciertos * valorPorCorrecta) - descuento;
+      puntajePregunta = Math.min(1.5, Math.max(0, Math.round(bruto * 100) / 100));
+    }
+    puntajeTotal += puntajePregunta;
+
+    const selTexto = sel.map(j => p.opciones[j]).join(' | ');
+    const correctasTexto = correctas.map(j => p.opciones[j]).join(' | ');
+    const estado = puntajePregunta === 10 ? '✓' : puntajePregunta > 0 ? '~' : '✗';
+    const maxPregunta = p.tipo === 'unica' ? 0.5 : 1.5;
+    return `[${i+1}] ${estado} (${puntajePregunta.toFixed(2)}/${maxPregunta}) ${p.texto}\nAlumno: ${selTexto||'(sin responder)'}\nCorrecta: ${correctasTexto}`;
+  }).join('\n\n');
+
+  const notaFinal = Math.min(10, Math.round(puntajeTotal * 100) / 100);
+
+  document.getElementById('fs-apellido').value  = alumno.apellido;
+  document.getElementById('fs-nombre').value    = alumno.nombre;
+  document.getElementById('fs-dni').value       = alumno.dni;
+  document.getElementById('fs-comision').value  = alumno.comision;
+  document.getElementById('fs-fecha').value     = fecha;
+  document.getElementById('fs-ref').value       = ref;
+  document.getElementById('fs-modo').value      = modo;
+  document.getElementById('fs-nota').value      = notaFinal + '/10';
+  document.getElementById('fs-respuestas').value= detalle;
+
+  if (porTiempo) {
+    document.getElementById('sent-titulo').textContent   = 'Tiempo agotado — evaluación enviada';
+    document.getElementById('sent-mensaje').textContent  = 'Se enviaron automáticamente las respuestas que tenías marcadas al vencerse el tiempo. La cátedra revisará tu examen y te comunicará el resultado.';
+  }
+  document.getElementById('ref-numero').textContent = ref;
+
+  const form = document.getElementById('formspree-form');
+  if (document.querySelector('input[name="access_key"]').value === 'YOUR_ACCESS_KEY') {
+    document.getElementById('ref-numero').textContent = ref + ' (modo demo)';
+    mostrarPantalla('screen-sent');
+    return;
+  }
+
+  const btn = document.getElementById('btn-enviar-final');
+  if (btn) { btn.disabled=true; btn.textContent='Enviando…'; }
+
+  fetch(form.action, { method:'POST', body:new FormData(form), headers:{'Accept':'application/json'} })
+    .then(()=>mostrarPantalla('screen-sent'))
+    .catch(()=>mostrarPantalla('screen-sent'));
+}
+</script>
+</body>
+</html>
